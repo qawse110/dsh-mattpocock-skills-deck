@@ -49,6 +49,8 @@ export interface RemotePhoneDeps {
   resolveGitExecutable: any
   resolveRepoRoot: any
   cwdOf: any
+  /** #12：写动作成功后清掉这个 cwd 的仓库身份缓存；老装配方不传就是空，写动作照旧成功。 */
+  forgetRepoKey?: any
   nowMs: any
 }
 
@@ -61,6 +63,7 @@ const ONLINE_STDOUT_LIMIT: number = 4 * 1024 * 1024
 /** 造这一族电话；依赖由父文件显式传入。 */
 export function createRemotePhones(deps: any): any {
   const { runPinned, failureFromExec, failPhone, resolveGitExecutable, resolveRepoRoot, cwdOf, nowMs }: RemotePhoneDeps = deps
+  const forgetRepoKey: any = (typeof (deps as any).forgetRepoKey === 'function') ? (deps as any).forgetRepoKey : null
   /** 在途的联网请求（同一 cwd + 远端名 + 引用选择器只飞一个）。不设过期、不自动重发。 */
   const inflight: Map<string, Promise<any>> = new Map()
   /** 四条写动作的票据层：票表与 requestId 结果表只活在宿主内存里（不落盘、不进日志）。 */
@@ -152,6 +155,11 @@ export function createRemotePhones(deps: any): any {
     const res: any = await runPinned(p.exe, p.root, run.argv(), { timeoutMs: WRITE_TIMEOUT_MS })
     const bad: any = failureFromExec(res, '执行 ' + command + ' 这一步')
     if (bad) return adapt(bad, 'remote-write-failed', '写动作没有成功，远端列表仍是动手前的样子。请按上面的 git 原话处理后再试。')
+    // #12：git 已经把远端改掉了，宿主手上那份「这个目录属于哪个 GitHub 仓库」的旧结论必须当场作废。
+    // 它没有有效期、也不跟 .git/config 比对，命中就整段跳过解析；不清的话，用户把 origin 从上游
+    // 改成自己的仓库之后，面板仍会按上游取票，点刷新也没用。
+    // 位置有意放在「after 重读」之前：写成功就要清，哪怕紧接着重读列表失败，缓存也不该留旧值。
+    if (forgetRepoKey) { try { await forgetRepoKey(cwdOf(input)) } catch (eForget) {} }
     const after: any = await readState(p.exe, p.root)
     if (after.ok !== true) {
       return fail('read-after', 'remote-read-after-failed', '动作已经发出去，但重新读远端列表没有成功，没法确认结果。请点一下刷新，看一眼列表再决定。', '')

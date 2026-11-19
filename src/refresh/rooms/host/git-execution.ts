@@ -306,6 +306,19 @@ export function createRepoKeys(deps: RepoKeysDeps) {
       } catch (e) {}
     }
 
+    // #12：远端改名、改地址、增删之后要立刻丢掉这个 cwd 已经认过的仓库身份。
+    // getRepoKey 的结论住在 repoKeys 里：没有有效期，也不跟 .git/config 比对，命中就直接返回。
+    // 不清它，面板会一直按旧仓库取票——用户把 origin 从上游改成自己的仓库后，看到的仍是上游那批票。
+    // 只清自己这一条 key（钥匙先规整，删才删得中）；清不到就当没有，绝不让写动作失败。
+    async function forgetRepoKey(cwd?: string) {
+      try {
+        const key = await canonicalKey(cwd || DEFAULT_CWD)
+        if (repoKeys[key] !== undefined) delete repoKeys[key]
+        if (repoRoots[key] !== undefined) delete repoRoots[key]
+        try { setCache({ ts: 0, snapshot: null, error: null, cwd: key }) } catch (eC) {}
+      } catch (e) {}
+    }
+
     // ============ v1.5 T9：git 根检测 + 磁盘缓存（跨重启秒开）============
     // git rev-parse --show-toplevel 层层上溯找根；嵌套仓库（子目录含独立 .git）git 原生停在最近根 —— 符合用户要求
     // #652 补一句：工作区根（哪条目录算这个会话的工作区）不在这里算，在 workspaceKey.js 的 resolveWorkspaceRoot
@@ -437,5 +450,5 @@ export function createRepoKeys(deps: RepoKeysDeps) {
       return urls === null ? null : identityFromUrls(urls)
     }
   // #723（T19）：TIMEOUT_MS 一并交出去，供还读它的老调用方兜底；分档由出站两路按命令认，不再两处各写一份。
-  return { resolveGh, resetGhCache, runGh, execProc, resolveGit, getHome, canonicalKey, forgetWorkspaceRootCache, getRepoRoot, getCacheDir, getRepoKey, getRepoIdentity, TIMEOUT_MS }
+  return { resolveGh, resetGhCache, runGh, execProc, resolveGit, getHome, canonicalKey, forgetWorkspaceRootCache, forgetRepoKey, getRepoRoot, getCacheDir, getRepoKey, getRepoIdentity, TIMEOUT_MS }
 }

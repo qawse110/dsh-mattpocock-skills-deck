@@ -65,7 +65,7 @@ type RefreshDeps = {
   ctx: { get(name: string): unknown }; logCtx?: LogCtx | null; DEFAULT_CWD?: string; envelope?: Envelope | null
   upcaseSnapStates(snap: unknown): Inner; computeLevels(tickets: Row[]): Levels; groupTickets(tickets: Row[]): unknown
   getRepoRoot(cwd: string): Promise<string> | string; getRepoKey(cwd: string): Promise<RepoKey> | RepoKey
-  adoptSnapshot(snap: unknown, c: unknown): unknown; detectionExec(cmd: string, args: unknown[], opts: unknown, phase: string): unknown; resetGhCache(): unknown; getGhPath(): string | null; getGhLastError(): unknown; errText(e: unknown): string
+  adoptSnapshot(snap: unknown, c: unknown): unknown; forgetRepoKey?: ((cwd: string) => Promise<unknown> | unknown) | null; detectionExec(cmd: string, args: unknown[], opts: unknown, phase: string): unknown; resetGhCache(): unknown; getGhPath(): string | null; getGhLastError(): unknown; errText(e: unknown): string
   send?: ((scope: unknown, run: () => unknown) => Promise<{ result: unknown }>) | null
   // #1446：接线处注入的额度读数口（按后端 id 取）；没接就照旧不传，快照形状与今天一致。
   budgetReadout?: ((backendId: string) => any) | null
@@ -77,7 +77,7 @@ type RefreshDeps = {
   getSnapshotLibrary?: (() => Promise<any> | any) | null
 }
 export function createSessionRefresh(deps: RefreshDeps) {
-  const { canonicalKey, selectEarly, isComposerSelection, resetGhCache, getTrackerRegistry, getPlatform, ctx, upcaseSnapStates, computeLevels, groupTickets, getRepoRoot, getRepoKey, adoptSnapshot, detectionExec, getGhPath, getGhLastError, errText, DEFAULT_CWD, logCtx, envelope, send, budgetReadout, openSession, noteRefreshFailure, getSnapshotLibrary } = deps
+  const { canonicalKey, selectEarly, isComposerSelection, resetGhCache, getTrackerRegistry, getPlatform, ctx, upcaseSnapStates, computeLevels, groupTickets, getRepoRoot, getRepoKey, forgetRepoKey, adoptSnapshot, detectionExec, getGhPath, getGhLastError, errText, DEFAULT_CWD, logCtx, envelope, send, budgetReadout, openSession, noteRefreshFailure, getSnapshotLibrary } = deps
   // 共用的那份信封（接线处 index.js 传进来，与 wf.snapshot 同一个实例）。
   // 没传就没法组装出与 wf.snapshot 同形的回包 —— 那种情况下宁可如实回一次失败，
   // 也不退回本文件自己拼一份（那正是这次故障的来路：两份信封各自漂）。
@@ -134,8 +134,11 @@ export function createSessionRefresh(deps: RefreshDeps) {
   // #729：刷新真正的组装（被在途表包住，一趟只跑一次；#195 的 resetGhCache 从入口搬进这里——
   // 搭车的不再重复清：那一清里带一次异步落盘清空，在途那趟的脚下不能再扫一次）。
   async function refreshBuild(args: Args, cwd: string, _sel: Sel | null) {
-      // #195 修复：用户主动刷新时清空 gh 解析缓存，强制重探
-      resetGhCache()
+      // #195 修复：用户主动刷新时清空 gh 解析缓存，强制重探。
+      // #12：顺手丢掉这个 cwd 的仓库身份（repoKeys）。那个缓存没有有效期、也不跟 .git/config 比对，
+      // 命中就整段跳过解析；用户把 origin 从上游改成自己的仓库之后不清它，刷新出来的仍是上游那批票。
+      // 与 resetGhCache 是同一件事的两段：它清 gh 发现层，这一句清仓库身份层，都只在用户主动刷新时做。
+      resetGhCache(); if (typeof forgetRepoKey === 'function') { try { await forgetRepoKey(cwd) } catch (eF) {} }
       // #1869：整轮刷新先把行收在内存里，编排成功后再整批一个事务写库；写库失败算刷新失败，
       // 不能只更新内存而让重启回到旧库。
       const refreshRows: unknown[] = []

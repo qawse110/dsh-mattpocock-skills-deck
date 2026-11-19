@@ -350,6 +350,24 @@ async function main() {
   const h13 = await loadPlugin({ subprocess: noGitSubprocess, timer, fs: fsSvc, skills: makeSkills() })
   const snap13 = await h13('snapshot', { cwd: configDir })
   expect('场景13 · 没有 git 可执行文件时仍从 .git/config 认出 GitHub 身份', snap13.repo && snap13.repo.owner === 'SAXEM1997' && snap13.repo.name === 'dsh-cherry-bridge', JSON.stringify(snap13.repo))
+
+  // ============ 场景 14：换了远端之后，刷新必须重新认仓库身份（#12 面板显示旧仓库的票） ============
+  // 面板上空的是哪一批票，取决于宿主手上的「这个目录属于哪个 GitHub 仓库」这个结论。它按 cwd 缓存在
+  // 进程内存里（repoKeys），没有有效期、也不跟 .git/config 比对，命中就整段跳过解析。于是在终端里把
+  // origin 从上游改成自己的仓库之后，点刷新也还是按上游取票——这一条守的就是那条路。
+  // 两层一起验：不刷新时必须还认旧的（证明缓存真的在生效，不是每条路都重新解析），刷新之后必须认新的。
+  console.log('--- 场景 14：远端换了之后，刷新重新认仓库身份 ---')
+  const renamedDir = await setupGitRepo([{ name: 'origin', url: 'https://github.com/OldOwner/OldRepo.git' }])
+  const h14 = await loadPlugin({ subprocess, timer, fs: fsSvc, skills: makeSkills() })
+  const snap14a = await h14('snapshot', { cwd: renamedDir })
+  expect('场景14 · 先认出换远端之前的那一个仓库', snap14a.repo && snap14a.repo.owner === 'OldOwner' && snap14a.repo.name === 'OldRepo', JSON.stringify(snap14a.repo))
+  spawnSync('git', ['-C', renamedDir, 'remote', 'set-url', 'origin', 'https://github.com/NewOwner/NewRepo.git'])
+  const snap14b = await h14('snapshot', { cwd: renamedDir })
+  expect('场景14 · 只改 .git/config 不清缓存时，同一个宿主仍回旧仓库（缓存确实生效）', snap14b.repo && snap14b.repo.owner === 'OldOwner' && snap14b.repo.name === 'OldRepo', JSON.stringify(snap14b.repo))
+  await h14('refresh', { cwd: renamedDir, force: true })
+  const snap14c = await h14('snapshot', { cwd: renamedDir })
+  expect('场景14 · 点刷新之后重新认仓库身份（换成了新仓库）', snap14c.repo && snap14c.repo.owner === 'NewOwner' && snap14c.repo.name === 'NewRepo', JSON.stringify(snap14c.repo))
+
   const failed = checks.filter(c => !c.pass)
   console.log('')
   console.log('TOTAL', checks.length, 'PASS', checks.length - failed.length, 'FAIL', failed.length)
