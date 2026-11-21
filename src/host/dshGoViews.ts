@@ -124,7 +124,7 @@ export function mapListView(status: string, rows: MapViewRow[], moreLabel: strin
     if (row.closedCount > 0) items.push({ title: '已关闭 ' + row.closedCount + ' 张', subtitle: '', tone: 'muted' })
   }
   out.push({ type: 'list', items })
-  if (moreLabel) out.push({ type: 'actions', items: [{ label: moreLabel, action: 'more', icon: 'plus' }] })
+  if (moreLabel) out.push({ type: 'actions', items: [{ label: moreLabel, action: 'more', icon: 'more' }] })
   return out
 }
 
