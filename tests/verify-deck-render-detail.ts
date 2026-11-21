@@ -25,10 +25,13 @@ const imp = (rel) => import(pathToFileURL(path.join(ROOT, rel)).href)
 
 // 两个上限直接从源文件里读，不在这里抄一份：抄一份的话，源文件改了上限而门禁还在按旧数造
 // 数据，门禁会一直绿，人却以为它守着上限，其实早就守的不是那个数了。
-const SRC = fs.readFileSync(path.join(ROOT, 'src/deck/registration/register-options.ts'), 'utf8')
+// 上限住 src/deck/registration/detail-render.ts（#4 拆文件时从 register-options.ts 搬过去，
+// 渲染本身也一起搬了；本门禁要盯的还是这一份实现，所以跟着改路径）。
+const SRC_PATH = 'src/deck/registration/detail-render.ts'
+const SRC = fs.readFileSync(path.join(ROOT, SRC_PATH), 'utf8')
 const limitOf = (name) => {
   const m = SRC.match(new RegExp('const ' + name + ' = (\\d+)'))
-  if (!m) throw new Error('源文件 src/deck/registration/register-options.ts 里读不到 ' + name + '：这条门禁的上限就是从那里抠出来的，抠不到先来改这里，别让断言拿 0 去比。')
+  if (!m) throw new Error('源文件 ' + SRC_PATH + ' 里读不到 ' + name + '：这条门禁的上限就是从那里抠出来的，抠不到先来改这里，别让断言拿 0 去比。')
   return Number(m[1])
 }
 const DETAIL_STRING_CAP = limitOf('DETAIL_STRING_CAP')

@@ -19,11 +19,13 @@
 
 | 文件 | 管什么 | 键数 |
 | --- | --- | --- |
-| `config/timeouts.yaml` | 单次等待的上限，到点没回来就按失败或放弃处理 | 78 |
-| `config/intervals.yaml` | 节拍间隔、一次性延时，以及末尾的退避序列（`chainBackoffMs`、`ownRouteRetryMs`） | 43 |
-| `config/ttl.yaml` | 有效期，一份数据或一次判断过多久算过期 | 51 |
+| `config/timeouts.yaml` | 单次等待的上限，到点没回来就按失败或放弃处理 | 112 |
+| `config/intervals.yaml` | 节拍间隔、一次性延时，以及末尾的退避序列（`chainBackoffMs`、`ownRouteRetryMs`） | 52 |
+| `config/ttl.yaml` | 有效期，一份数据或一次判断过多久算过期 | 56 |
 
-三份合计 172 个键（2026-10-29 按 #1629 之后核准；数字随每次加键变化，以 `scripts/generate-time-config.mts` 的 KEYS 表为准）。
+三份合计 220 个键（2026-11-21 按三份文件实测的键数重记账；这两个数字原来停在 172，
+是 #1629 之后陆续加键没人跟着改，属文档漂移，不是有效配置变了。数字随每次加键变化，
+以 `scripts/generate-time-config.mts` 的 KEYS 表为准）。
 2026-10-26 门禁重新入链时又补了 9 个键：工作路线回执的三个时间窗（`workRouteInProgressWindowMs`、
 `workRouteActiveWindowMs`、`workRouteCollisionWindowMs`）、存档保留期 `chainKeepMs`、写事件补丁的
 `writePatchTtlMs`、视野模型上报去重窗 `attentionReportDedupeMs`、出站排队段的两档日志节流

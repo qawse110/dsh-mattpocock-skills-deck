@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-21T07:09:39.383Z",
+  "generatedAt": "2026-11-21T14:52:39.219Z",
   "generatedBy": "node scripts/gate-map.mts",
-  "chainLength": 601,
-  "gateCount": 601,
-  "attributedGates": 545,
+  "chainLength": 602,
+  "gateCount": 602,
+  "attributedGates": 546,
   "unattributedGates": 56,
   "buildOutputOnlyGates": 21,
-  "completionRecordedGates": 144,
+  "completionRecordedGates": 145,
   "smokeLength": 8,
   "smokeCompletionRecordedGates": 5,
-  "graphFileCount": 967,
+  "graphFileCount": 971,
   "gates": [
     {
       "step": "node tests/verify-1207-splice-ts.ts",
@@ -537,6 +537,7 @@
       "step": "node tests/verify-deck-render-detail.ts",
       "file": "tests/verify-deck-render-detail.ts",
       "guards": [
+        "src/deck/registration/detail-render.ts",
         "src/deck/registration/register-options.ts"
       ],
       "dirs": [
@@ -546,7 +547,7 @@
       "buildOutputOnly": false,
       "completionRecord": false,
       "expectedAssertions": 0,
-      "reason": "归属来自：读文件调用（readFileSync / readFile / path.join(ROOT, ...)） 1 条；源码里的路径字面量 1 条"
+      "reason": "归属来自：源码里的路径字面量 2 条"
     },
     {
       "step": "node tests/verify-deck-repo-resolve.ts",
@@ -7479,6 +7480,25 @@
       "reason": "归属来自：载入模块（require / import / pathToFileURL） 1 条；源码里的路径字面量 1 条"
     },
     {
+      "step": "node tests/verify-4-deck-tool-cards.ts",
+      "file": "tests/verify-4-deck-tool-cards.ts",
+      "guards": [
+        "src/deck/registration/detail-render.ts",
+        "src/deck/registration/register-options.ts",
+        "src/deck/registration/tool-cards-blocks.ts",
+        "src/deck/registration/tool-cards-words.ts",
+        "src/deck/registration/tool-cards.ts"
+      ],
+      "dirs": [
+        "src/deck/registration"
+      ],
+      "unattributed": false,
+      "buildOutputOnly": false,
+      "completionRecord": true,
+      "expectedAssertions": 197,
+      "reason": "归属来自 文件头 // 门禁归属: 注释（共 5 条）"
+    },
+    {
       "step": "node tests/verify-423-title-clamp-browser.ts",
       "file": "tests/verify-423-title-clamp-browser.ts",
       "guards": [
@@ -13269,6 +13289,8 @@
         "src/deck/tools/tracker-session.ts",
         "src/deck/tools/work-route.ts",
         "src/host/deckToolGate.ts",
+        "src/host/dshGoCache.ts",
+        "src/host/dshGoData.ts",
         "src/host/index.ts",
         "src/host/namingGuardian.ts",
         "src/host/platform/namingSummary.ts",
@@ -13440,7 +13462,7 @@
       "buildOutputOnly": false,
       "completionRecord": false,
       "expectedAssertions": 0,
-      "reason": "归属来自：读文件调用（readFileSync / readFile / path.join(ROOT, ...)） 6 条；静态 import 说明符 2 条；源码里的路径字面量 185 条"
+      "reason": "归属来自：读文件调用（readFileSync / readFile / path.join(ROOT, ...)） 6 条；静态 import 说明符 2 条；源码里的路径字面量 187 条"
     },
     {
       "step": "node tests/verify-tip-place.ts",
@@ -15037,6 +15059,7 @@
       "node tests/verify-1114-timer-exit.ts",
       "node tests/verify-1195-cell-cancel.ts",
       "node tests/verify-1612-deck-tool-gate.ts",
+      "node tests/verify-4-deck-tool-cards.ts",
       "node tests/verify-895-bulk-deadline.ts",
       "node tests/verify-notification-events.ts",
       "node tests/verify-suggest-next-steps.ts",
@@ -16611,9 +16634,9 @@
   },
   "coverage": {
     "sourceRoot": "src",
-    "fileCount": 990,
+    "fileCount": 994,
     "dirCount": 101,
-    "coveredFileCount": 990,
+    "coveredFileCount": 994,
     "ungatedFileCount": 0,
     "ungatedDirCount": 0,
     "dedicatedDirCount": 80,
@@ -16929,11 +16952,15 @@
       "src/client/views/versionControl/vcWriteUi.ts",
       "src/client/views/versionControl/vcWriteView.ts",
       "src/deck/registration/agent-row.ts",
+      "src/deck/registration/detail-render.ts",
       "src/deck/registration/host-assemble.ts",
       "src/deck/registration/host-delegate.ts",
       "src/deck/registration/register-options.ts",
       "src/deck/registration/sandbox-guard.ts",
       "src/deck/registration/suggest-steps-register.ts",
+      "src/deck/registration/tool-cards-blocks.ts",
+      "src/deck/registration/tool-cards-words.ts",
+      "src/deck/registration/tool-cards.ts",
       "src/deck/rules/anchor.ts",
       "src/deck/rules/dependency-graph.ts",
       "src/deck/rules/edge-landing.ts",

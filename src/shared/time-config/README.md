@@ -2,14 +2,14 @@
 
 全仓时间参数的落点：超时、节拍间隔、一次性延时、有效期、退避序列。
 数字只在 `config/` 下的三份 YAML 里有一份，源码里不许再写第二份——第二份一出现，
-调时间就要改两处，改一处漏一处（#1215 单源头改造把当时 140 个键全收拢了；此后仍在增加，现共 172 个键，见 ADR §2）。
+调时间就要改两处，改一处漏一处（#1215 单源头改造把当时 140 个键全收拢了；此后仍在增加，现共 220 个键，见 ADR §2）。
 
 ## 三个东西的关系
 
 1. `config/` 下的三份 YAML——人改的唯一地方。想调时间只改这里：
-   - `config/timeouts.yaml`：单次等待的上限，到点没回来就按失败或放弃处理（78 个键）；
-   - `config/intervals.yaml`：节拍间隔、一次性延时，末尾还有退避序列（`chainBackoffMs`、`ownRouteRetryMs`，43 个键）；
-   - `config/ttl.yaml`：有效期，一份数据或一次判断过多久算过期（51 个键）。
+   - `config/timeouts.yaml`：单次等待的上限，到点没回来就按失败或放弃处理（112 个键）；
+   - `config/intervals.yaml`：节拍间隔、一次性延时，末尾还有退避序列（`chainBackoffMs`、`ownRouteRetryMs`，52 个键）；
+   - `config/ttl.yaml`：有效期，一份数据或一次判断过多久算过期（56 个键）。
 2. `scripts/generate-time-config.mts`——生成器。它按 KEYS 表第三列的分组决定每个键住哪份
    YAML：校验（未知键报错、拼错提示、缺键报错、同名键只能出现在一份文件里）后写出两份东西：
    - `src/shared/time-config/src/values.ts`——生成的源码（类型 + 值，不入库，构建与 typecheck 时现场生成）；

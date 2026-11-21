@@ -21,6 +21,8 @@
  */
 
 import { WORKSPACE_YAML_REL } from '../shared/config-store/src/workspace.js'
+// 等锁上限走 config/timeouts.yaml（snapshotOpenBusyTimeoutMs），值由 tests/verify-time-config.ts 看守一致。
+import { SNAPSHOT_OPEN_BUSY_TIMEOUT_MS } from '../shared/time-config/src/values.js'
 import { groupTickets } from '../tracker/kernel/grouping.js'
 
 // 本域 tsconfig 有意不加载 Node 类型包（types 为空），运行时一定是 Node（22.3 起有 getBuiltinModule）。
@@ -287,7 +289,8 @@ function openReadOnly(rootKey: string, backend: string): any {
   try {
     const dbPath = nodePath().join(String(rootKey), CACHE_DIR_REL, SNAPSHOT_DIR_NAME, backend + '.sqlite')
     const sqlite = process.getBuiltinModule('node:sqlite')
-    return new sqlite.DatabaseSync(dbPath, { readOnly: true, timeout: 2000 })
+    // 打不开就回 null：别的连接占着库时最多等这一档，不排队（面板首帧只等一秒）。
+    return new sqlite.DatabaseSync(dbPath, { readOnly: true, timeout: SNAPSHOT_OPEN_BUSY_TIMEOUT_MS })
   } catch (e) {
     return null
   }

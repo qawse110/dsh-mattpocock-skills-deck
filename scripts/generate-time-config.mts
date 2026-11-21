@@ -186,6 +186,8 @@ const KEYS: Array<[string, string, string]> = [
   ['snapshotRebuildLockWaitMs', 'SNAPSHOT_REBUILD_LOCK_WAIT_MS', 'timeouts'],
   // #1932：查 Windows 网络盘集合的超时（PowerShell 起不来就按本地多处理）。
   ['snapshotNetworkDriveProbeMs', 'SNAPSHOT_NETWORK_DRIVE_PROBE_MS', 'timeouts'],
+  // #4：只读打开快照库时，别的连接占着库最多等多久（面板首帧只等一秒，到点按打不开收场）。
+  ['snapshotOpenBusyTimeoutMs', 'SNAPSHOT_OPEN_BUSY_TIMEOUT_MS', 'timeouts'],
   ['shellResolveMs', 'SHELL_RESOLVE_TIMEOUT_MS', 'timeouts'],
   ['namingSummaryTimeoutMs', 'NAMING_SUMMARY_TIMEOUT_MS', 'timeouts'],
   ['logWatchdogMs', 'LOG_WATCHDOG_MS', 'timeouts'],

@@ -269,6 +269,8 @@ const REFERENCES: RefRow[] = [
   { file: 'src/workspace-snapshot/runtime/lease.ts', access: 'LEASE_HEARTBEAT_MS', gen: 'SNAPSHOT_LEASE_HEARTBEAT_MS', key: 'snapshotLeaseHeartbeatMs' },
   { file: 'src/workspace-snapshot/runtime/lease.ts', access: 'LEASE_TTL_MS', gen: 'SNAPSHOT_LEASE_TTL_MS', key: 'snapshotLeaseTtlMs' },
   { file: 'src/workspace-snapshot/runtime/storage-kind.ts', access: 'SNAPSHOT_NETWORK_DRIVE_PROBE_MS', gen: 'SNAPSHOT_NETWORK_DRIVE_PROBE_MS', key: 'snapshotNetworkDriveProbeMs' },
+  // #4 收工具核心数字：面板只读打开快照库时等锁的上限（原来是写死的 2000）。
+  { file: 'src/host/dshGoCache.ts', access: 'SNAPSHOT_OPEN_BUSY_TIMEOUT_MS', gen: 'SNAPSHOT_OPEN_BUSY_TIMEOUT_MS', key: 'snapshotOpenBusyTimeoutMs' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -435,6 +437,10 @@ const EXEMPTS: ExemptRow[] = [
   // #1889：库里读出来的「这一组上次由回执写入的时刻」，只是拿去做窗口比较，本身不是可调参数；
   // 真正可调的是窗口长度 SNAPSHOT_RECEIPT_PRIORITY_MS（见 REFERENCES，来自 snapshotReceiptPriorityMs）。
   { file: 'src/workspace-snapshot/runtime/ingest.ts', name: 'receiptMs', reason: '库里读出来的时刻（毫秒时间戳），不是可调时长；窗口长度走 SNAPSHOT_RECEIPT_PRIORITY_MS（已登记）' },
+  // #4 收工具核心数字：这两处都是「快照库里读出来的写库时刻」，只用来告诉面板数据有多旧，
+  // 改 YAML 也改不动它——可调的 freshness 判据是 freshnessYellowMs / freshnessRedMs（已登记）。
+  { file: 'src/host/dshGoCache.ts', name: 'generatedAtMs', reason: '库里读出来的写库时刻（毫秒时间戳），只用来告诉面板数据有多旧，不是可调时长' },
+  { file: 'src/host/dshGoData.ts', name: 'generatedAtMs', reason: '从快照读数上转手的那一格写库时刻（毫秒时间戳），不是可调时长' },
   { file: 'src/shared/version-control/src/parse-log.ts', name: 'aMs', reason: '测量用局部变量（两次读钟的差），不是可调参数' },
   { file: 'src/shared/version-control/src/parse-log.ts', name: 'cMs', reason: '测量用局部变量（两次读钟的差），不是可调参数' },
   { file: 'src/tracker/detection/backendDecision.ts', name: 'autoMs', reason: '测量用局部变量，不是可调参数' },
