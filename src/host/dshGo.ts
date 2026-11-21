@@ -14,7 +14,7 @@
 
 // @ts-expect-error 本域 tsconfig 有意不加载 Node 类型包（types 为空），运行时一定是 Node。
 import { readFileSync } from 'node:fs'
-import { mapRows, workRows, recentMaps, detailOf, settingsOf, stripOf, loadModel, lastModel, rememberUi, uiOf } from './dshGoData.js'
+import { mapRows, workRows, recentMaps, detailOf, settingsOf, stripOf, loadModel, lastModel, rememberUi, uiOf, watchUi } from './dshGoData.js'
 import type { DeckModel } from './dshGoData.js'
 import { mapListView, sessionWorkView, ticketDetailView, settingsView, stripText } from './dshGoViews.js'
 
@@ -162,8 +162,23 @@ function panelData(ctx: any, id: string) {
         if (live) emit({ blocks: blocksOf(id, model, sessionId, caps) })
       })
       .catch(() => {})
+    // 点按只改内存里的界面状态（展开哪张地图、翻到第几页、在看哪张票），这里订阅它：
+    // 改完立刻把同一份读数重新摆一帧发出去。少了这一步，点按返回 refresh 之后 App 取回的
+    // 还是旧帧（桥接的 /views 只回 feed 里的当前值，不会重跑 data），画面就一直不动。
+    // 读数（DeckModel）跟着面板的会话走；界面状态（展开了哪张地图、第几页）按点按写进的那个会话来读。
+    // 平常两者是同一个会话；点按不带 sessionId 时会写进空会话那一格，所以下面连带订阅空会话并用它读界面状态，
+    // 这样「面板有会话、点按没有」也不会变成点了没反应。
+    const redraw = (uiSessionId: string) => () => {
+      if (!live) return
+      const model = lastModel(sessionId)
+      if (model === undefined) return
+      emit({ blocks: blocksOf(id, model, uiSessionId, caps) })
+    }
+    const stops = [watchUi(sessionId, redraw(sessionId))]
+    if (sessionId !== '') stops.push(watchUi('', redraw('')))
     return () => {
       live = false
+      for (const stop of stops) stop()
     }
   }
 }
@@ -246,8 +261,20 @@ function stripReader(ctx: any) {
     void loadModel(ctx, sessionId)
       .then((model) => say(model))
       .catch(() => {})
+    // 状态条挑哪张地图看的是「刚展开了哪张」，所以界面状态一变也要重算一次文案。
+    const redraw = (uiSessionId: string) => () => {
+      const model = lastModel(sessionId)
+      if (model === undefined) return
+      if (!live) return
+      const facts = stripOf(model, uiSessionId)
+      const text = facts.kind === 'none' ? (zh ? STRIP_TEXT.zh : STRIP_TEXT.en) : stripText(facts.kind, facts.decided, facts.total, facts.nextKey, facts.mapCount)
+      emit({ text })
+    }
+    const stops = [watchUi(sessionId, redraw(sessionId))]
+    if (sessionId !== '') stops.push(watchUi('', redraw('')));
     return () => {
       live = false
+      for (const stop of stops) stop()
     }
   }
 }

@@ -345,6 +345,24 @@ async function main(): Promise<void> {
     }
   }
 
+  // D11 点按之后画面必须真的变。这一条是 #10 真机走查揪出来的：App 点一下之后会带着 refresh
+  // 重新拉 GET /views，桥接只回 feed 里的当前帧、绝不重跑 data，所以点按如果只改内存状态而不补发一帧，
+  // 真机上就是「点了没反应」，而上面 D1/D2 与 C 段仍然全绿。这里用同一个会话开一路订阅，点 expand，
+  // 断言订阅收到新帧，并且新帧里多出那张地图的子票行。
+  const liveSession = 'sess-d11'
+  const liveFrames: any[] = []
+  const stopLive = panelOf('map-list').def.data({ sessionId: liveSession }, (value: any) => liveFrames.push(value), { protocol: 1, locale: 'zh-CN' })
+  await waitFor(() => liveFrames.length >= 2, 3000)
+  const liveBefore = liveFrames.length
+  const liveRowsBefore = rowsOf(liveFrames[liveFrames.length - 1]?.blocks ?? []).length
+  panelOf('map-list').def.actions.expand({ sessionId: liveSession }, { surface: 'panels', id: 'map-list', locale: 'zh-CN', userGesture: true, value: { key: firstMapKey } })
+  const framed = await waitFor(() => liveFrames.length > liveBefore, 3000)
+  if (typeof stopLive === 'function') stopLive()
+  const liveRowsAfter = rowsOf(liveFrames[liveFrames.length - 1]?.blocks ?? [])
+  check(framed, 'D11.1 点「展开」之后同一个会话的订阅收到新的一帧（否则 App 带着 refresh 拉回来的还是旧帧）', { before: liveBefore, after: liveFrames.length })
+  check(liveRowsAfter.length > liveRowsBefore, 'D11.2 新帧里多出这张地图的子票行', { before: liveRowsBefore, after: liveRowsAfter.length })
+  check(liveRowsAfter.some((row: any) => String(row.title || '').startsWith('· #')), 'D11.3 新帧里的子票行带「· #票号」开头', liveRowsAfter.map((row: any) => row.title))
+
   // ── E 状态条 ───────────────────────────────────────────────────────────
   for (const kind of ['none', 'progress', 'done', 'many', 'stuck']) {
     const text = stripText(kind, 2, 8, '10', 3)

@@ -74,12 +74,63 @@ export function uiOf(sessionId: string): UiState {
   return created
 }
 
-/** 记下这个会话刚点开了哪张地图 / 哪张票 / 翻到第几页，供下一次重画时读。 */
+/**
+ * 界面状态的订阅者。点按只改内存里这份状态，画面要靠面板的 data 函数再发一帧才会变；
+ * 桥接的 GET /views 只回 feed 里的当前帧，不替你重算，所以没有订阅者时点一下就是没反应。
+ */
+const uiWatchers = new Map<string, Set<() => void>>()
+
+/**
+ * 订阅这个会话的界面状态：点按改完状态后立刻回调一次（展开哪张地图、翻到第几页、正在看哪张票）。
+ * 返回取消函数，面板的 data 函数在取消（面板关掉）时调用它，别让已停掉的 feed 继续被写。
+ * 同一会话可以有多个订阅者：几块面板可能同时开着，各自都要拿到新帧。
+ */
+export function watchUi(sessionId: string, fn: () => void): () => void {
+  const key = String(sessionId || '')
+  let set = uiWatchers.get(key)
+  if (set === undefined) {
+    set = new Set()
+    uiWatchers.set(key, set)
+  }
+  set.add(fn)
+  return () => {
+    const found = uiWatchers.get(key)
+    if (found === undefined) return
+    found.delete(fn)
+    if (found.size === 0) uiWatchers.delete(key)
+  }
+}
+
+/** 记下这个会话刚点开了哪张地图 / 哪张票 / 翻到第几页，供下一次重画时读；真的变了才叫醒订阅者。 */
 export function rememberUi(sessionId: string, patch: Partial<UiState>): void {
-  const state = uiOf(sessionId)
-  if (patch.expandedMap !== undefined) state.expandedMap = patch.expandedMap
-  if (patch.openTicket !== undefined) state.openTicket = patch.openTicket
-  if (patch.page !== undefined) state.page = Math.max(0, patch.page)
+  const key = String(sessionId || '')
+  const state = uiOf(key)
+  let changed = false
+  if (patch.expandedMap !== undefined && state.expandedMap !== patch.expandedMap) {
+    state.expandedMap = patch.expandedMap
+    changed = true
+  }
+  if (patch.openTicket !== undefined && state.openTicket !== patch.openTicket) {
+    state.openTicket = patch.openTicket
+    changed = true
+  }
+  if (patch.page !== undefined) {
+    const page = Math.max(0, patch.page)
+    if (state.page !== page) {
+      state.page = page
+      changed = true
+    }
+  }
+  if (!changed) return
+  const watchers = uiWatchers.get(key)
+  if (watchers === undefined) return
+  for (const fn of [...watchers]) {
+    try {
+      fn()
+    } catch (e) {
+      // 一个订阅者出错不该影响点按本身，也不该连累同一会话里别的面板。
+    }
+  }
 }
 
 /** 这个会话上一次算出来的读数；没有就是 undefined。 */
