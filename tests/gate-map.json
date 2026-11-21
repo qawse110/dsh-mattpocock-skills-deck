@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-20T07:20:13.961Z",
+  "generatedAt": "2026-11-21T07:09:39.383Z",
   "generatedBy": "node scripts/gate-map.mts",
-  "chainLength": 600,
-  "gateCount": 600,
-  "attributedGates": 544,
+  "chainLength": 601,
+  "gateCount": 601,
+  "attributedGates": 545,
   "unattributedGates": 56,
   "buildOutputOnlyGates": 21,
-  "completionRecordedGates": 143,
+  "completionRecordedGates": 144,
   "smokeLength": 8,
   "smokeCompletionRecordedGates": 5,
-  "graphFileCount": 963,
+  "graphFileCount": 967,
   "gates": [
     {
       "step": "node tests/verify-1207-splice-ts.ts",
@@ -7532,6 +7532,25 @@
       "completionRecord": false,
       "expectedAssertions": 0,
       "reason": "归属来自：读文件调用（readFileSync / readFile / path.join(ROOT, ...)） 5 条"
+    },
+    {
+      "step": "node tests/verify-5-dshgo-panels.ts",
+      "file": "tests/verify-5-dshgo-panels.ts",
+      "guards": [
+        "src/host/dshGo.ts",
+        "src/host/dshGoCache.ts",
+        "src/host/dshGoData.ts",
+        "src/host/dshGoViews.ts",
+        "src/host/dshGoWork.ts"
+      ],
+      "dirs": [
+        "src/host"
+      ],
+      "unattributed": false,
+      "buildOutputOnly": false,
+      "completionRecord": true,
+      "expectedAssertions": 133,
+      "reason": "归属来自 文件头 // 门禁归属: 注释（共 5 条）"
     },
     {
       "step": "node tests/verify-504-github-pr.ts",
@@ -15199,6 +15218,7 @@
       "node tests/verify-1923-closed-container.ts",
       "node tests/verify-3-workspace-switch.ts",
       "node tests/verify-497-slash.ts",
+      "node tests/verify-5-dshgo-panels.ts",
       "node tests/verify-596-rpc-carrier.ts",
       "node tests/verify-656-subworkspace-acceptance.ts",
       "node tests/verify-666-subws-mark-root.ts",
@@ -16591,9 +16611,9 @@
   },
   "coverage": {
     "sourceRoot": "src",
-    "fileCount": 986,
+    "fileCount": 990,
     "dirCount": 101,
-    "coveredFileCount": 986,
+    "coveredFileCount": 990,
     "ungatedFileCount": 0,
     "ungatedDirCount": 0,
     "dedicatedDirCount": 80,
@@ -16984,6 +17004,10 @@
       "src/host/deckToolGate.ts",
       "src/host/dispatchMeta.ts",
       "src/host/dshGo.ts",
+      "src/host/dshGoCache.ts",
+      "src/host/dshGoData.ts",
+      "src/host/dshGoViews.ts",
+      "src/host/dshGoWork.ts",
       "src/host/fsAbsence.ts",
       "src/host/handoffClaim.ts",
       "src/host/index.ts",
