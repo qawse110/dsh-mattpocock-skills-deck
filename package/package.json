@@ -37,7 +37,8 @@
     "bundled-skills",
     "bundled-skills-zh",
     "scripts/",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "dsh-go"
   ],
   "keywords": [
     "dsh",
@@ -61,6 +62,105 @@
       "platform": "web",
       "immediately": true,
       "inject": []
+    }
+  },
+  "dshGo": {
+    "v": 1,
+    "title": {
+      "zh": "技能票台",
+      "en": "Tracker Deck"
+    },
+    "icon": "panel",
+    "contributes": {
+      "composer.strip": [
+        {
+          "id": "deck-strip",
+          "icon": "panel",
+          "text": {
+            "zh": "技能票台",
+            "en": "Tracker Deck"
+          },
+          "panel": "map-list"
+        }
+      ],
+      "composer.actions": [
+        {
+          "id": "deck-open-map",
+          "icon": "panel",
+          "label": {
+            "zh": "看地图",
+            "en": "Map"
+          },
+          "effect": {
+            "type": "open",
+            "page": "panel:map-list"
+          }
+        },
+        {
+          "id": "deck-new-ticket",
+          "icon": "add",
+          "label": {
+            "zh": "新建票",
+            "en": "New ticket"
+          },
+          "effect": {
+            "type": "insert",
+            "text": "帮我在技能票台里新建一张票："
+          }
+        }
+      ],
+      "panels": [
+        {
+          "id": "map-list",
+          "title": {
+            "zh": "地图",
+            "en": "Maps"
+          },
+          "icon": "list",
+          "placement": [
+            "features",
+            "chat.panel"
+          ],
+          "view": "./dsh-go/views/map-list.json"
+        },
+        {
+          "id": "session-work",
+          "title": {
+            "zh": "本会话的活",
+            "en": "This session"
+          },
+          "icon": "todo",
+          "placement": [
+            "chat.panel"
+          ],
+          "view": "./dsh-go/views/session-work.json"
+        },
+        {
+          "id": "ticket-detail",
+          "title": {
+            "zh": "票详情",
+            "en": "Ticket"
+          },
+          "icon": "document",
+          "placement": [
+            "session.tab"
+          ],
+          "presentation": "sheet",
+          "view": "./dsh-go/views/ticket-detail.json"
+        },
+        {
+          "id": "settings",
+          "title": {
+            "zh": "设置",
+            "en": "Settings"
+          },
+          "icon": "settings",
+          "placement": [
+            "features"
+          ],
+          "view": "./dsh-go/views/settings.json"
+        }
+      ]
     }
   },
   "homepage": "https://github.com/FeatherHunter/dsh-mattpocock-skills-deck",

@@ -1,0 +1,16 @@
+{
+  "type": "stack",
+  "title": "本会话的活",
+  "children": [
+    {
+      "type": "text",
+      "text": "这一版只是骨架，数据还没接上。",
+      "tone": "muted"
+    },
+    {
+      "type": "callout",
+      "text": "以后这里显示本会话正在处理的票：做到哪一步、下一步该干什么。",
+      "tone": "info"
+    }
+  ]
+}

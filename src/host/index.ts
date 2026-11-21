@@ -380,14 +380,13 @@ export default {
     })
     return true
     }
+    // dsh-go 手机原生界面（地图 #3、票 #7）：注册点是 ./dshGo.js，这是它唯一的装配行，只能放在启动门前——subprocess/timer 一开始就齐的话下一行会直接 return；回调也只在有 dshGo 桥接的主机上执行，网页版一行不变，来历见账本 §10。
+    try { import('./dshGo.js').then(function (m: any) { m.installDshGo(ctx) }).catch(function () {}) } catch (eGo) {}
     if (bootBody()) return
     let booted = false
     const bootOnce = () => { if (booted) return; booted = true; try { bootBody() } catch (eBoot) {} }
     try { ctx.inject(['subprocess', 'timer'], bootOnce) } catch (eInj) { bootOnce() }
-    // 这个延时是「等 subprocess/timer 就绪最多等多久」，值来自中央 YAML 的 hostBootDeferMs 键
-    // （生成常量 HOST_BOOT_DEFER_MS）；本文件是插件入口、不许加静态 import，所以这里同样动态 import。
-    // 这段只是诊断警告（到点只记一条日志，不触发启动），import 失败就静默跳过，不影响上面的注入路径。
-    // 注意：上面第 46 行的 _timeCfg 住在另一个函数里，这里够不着，所以把动态 import 直接写在这里。
+    // 这段延时是等 subprocess/timer 就绪的上限（值来自中央 YAML 的 hostBootDeferMs，生成常量 HOST_BOOT_DEFER_MS）；到点只记一条日志不触发启动，import 失败静默跳过（D7 禁静态 import，_timeCfg 住在别的函数里这里够不着）。
     import('../shared/time-config/src/values.js').then(function (tc: any) {
       setTimeout(() => {
         if (booted) return

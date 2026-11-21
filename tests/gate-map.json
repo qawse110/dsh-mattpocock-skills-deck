@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-06T14:05:45.934Z",
+  "generatedAt": "2026-11-20T07:20:13.961Z",
   "generatedBy": "node scripts/gate-map.mts",
   "chainLength": 600,
   "gateCount": 600,
@@ -10,7 +10,7 @@
   "completionRecordedGates": 143,
   "smokeLength": 8,
   "smokeCompletionRecordedGates": 5,
-  "graphFileCount": 962,
+  "graphFileCount": 963,
   "gates": [
     {
       "step": "node tests/verify-1207-splice-ts.ts",
@@ -7849,6 +7849,7 @@
       "file": "tests/verify-656-subworkspace-acceptance.ts",
       "guards": [
         "docs/agents/issue-tracker.md",
+        "docs/agents/label-colors.yaml",
         "docs/agents/workspace.yaml",
         "scripts/lib/discover-gates.ts",
         "src/client/kernel/store-prefs.ts",
@@ -7885,7 +7886,7 @@
       "buildOutputOnly": false,
       "completionRecord": false,
       "expectedAssertions": 0,
-      "reason": "归属来自：静态 import 说明符 3 条；源码里的路径字面量 16 条"
+      "reason": "归属来自：静态 import 说明符 3 条；源码里的路径字面量 17 条"
     },
     {
       "step": "node tests/verify-663-gh-install-inject.ts",
@@ -11748,6 +11749,7 @@
       "step": "node tests/verify-markdown-label-colors.ts",
       "file": "tests/verify-markdown-label-colors.ts",
       "guards": [
+        "docs/agents/label-colors.yaml",
         "src/host/workspaceCwd.ts",
         "src/shared/label-color/src/colors.ts",
         "src/tracker/contract/canonical-labels.ts",
@@ -11755,6 +11757,7 @@
         "src/tracker/rooms/markdown/label-colors-errors.ts"
       ],
       "dirs": [
+        "docs/agents",
         "src/host",
         "src/shared/label-color/src",
         "src/tracker/contract",
@@ -11764,7 +11767,7 @@
       "buildOutputOnly": false,
       "completionRecord": false,
       "expectedAssertions": 0,
-      "reason": "归属来自：载入模块（require / import / pathToFileURL） 1 条；静态 import 说明符 4 条"
+      "reason": "归属来自：载入模块（require / import / pathToFileURL） 1 条；静态 import 说明符 4 条；源码里的路径字面量 1 条"
     },
     {
       "step": "node tests/verify-markdown.ts",
@@ -14198,6 +14201,7 @@
       "node tests/verify-detection-evidence.ts",
       "node tests/verify-github-label-colors.ts",
       "node tests/verify-issue-body-script.ts",
+      "node tests/verify-markdown-label-colors.ts",
       "node tests/verify-t1-getrepokey.ts",
       "node tests/verify-wire-subissues-script.ts"
     ],
@@ -16587,9 +16591,9 @@
   },
   "coverage": {
     "sourceRoot": "src",
-    "fileCount": 985,
+    "fileCount": 986,
     "dirCount": 101,
-    "coveredFileCount": 985,
+    "coveredFileCount": 986,
     "ungatedFileCount": 0,
     "ungatedDirCount": 0,
     "dedicatedDirCount": 80,
@@ -16979,6 +16983,7 @@
       "src/host/configStore.ts",
       "src/host/deckToolGate.ts",
       "src/host/dispatchMeta.ts",
+      "src/host/dshGo.ts",
       "src/host/fsAbsence.ts",
       "src/host/handoffClaim.ts",
       "src/host/index.ts",

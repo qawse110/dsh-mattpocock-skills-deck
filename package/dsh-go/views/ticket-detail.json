@@ -1,0 +1,16 @@
+{
+  "type": "stack",
+  "title": "票详情",
+  "children": [
+    {
+      "type": "text",
+      "text": "这一版只是骨架，从地图点开一张票时弹出的这个弹层还没有内容。",
+      "tone": "muted"
+    },
+    {
+      "type": "callout",
+      "text": "以后这里显示票的正文摘要、子票与阻塞关系、最近一条决定。",
+      "tone": "info"
+    }
+  ]
+}
